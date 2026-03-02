@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arivon · Web & AI automation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0b0f1a;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.5;
+            color: #eef2f6;
+            scroll-behavior: smooth;
+        }
+
+        /* fallback font stack – Inter used via modern stack, but we'll add a local fallback */
+        h1, h2, h3, .button, .nav-link {
+            font-weight: 500;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.8rem;
+        }
+
+        /* ----- hero dark gradient ----- */
+        .hero {
+            background: linear-gradient(145deg, #0f172a 0%, #111c34 45%, #1a263f 100%);
+            padding: 5rem 0 6rem 0;
+            border-bottom: 1px solid rgba(0, 180, 255, 0.1);
+            box-shadow: 0 20px 30px -15px rgba(0,0,0,0.7);
+        }
+
+        .hero-content {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1.2rem;
+        }
+
+        .hero h1 {
+            font-size: clamp(3.5rem, 13vw, 6rem);
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: -0.03em;
+            background: linear-gradient(to right, #ffffff, #d0e0ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 20px rgba(0,160,255,0.35);
+            margin-bottom: 0.3rem;
+        }
+
+        .hero-tagline {
+            font-size: clamp(1.3rem, 4vw, 1.9rem);
+            font-weight: 350;
+            color: #b0cbff;
+            max-width: 700px;
+            border-left: 4px solid #2f7cf0;
+            padding-left: 1.6rem;
+            margin: 0.5rem 0 0.8rem 0;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: #1e3a8a;
+            color: white;
+            font-weight: 600;
+            padding: 0.9rem 2.5rem;
+            border-radius: 60px;
+            text-decoration: none;
+            font-size: 1.2rem;
+            letter-spacing: 0.3px;
+            box-shadow: 0 12px 22px -10px #1e3a8a80, 0 4px 12px rgba(0, 140, 255, 0.3);
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: all 0.25s ease;
+            backdrop-filter: blur(2px);
+            margin-top: 1rem;
+        }
+
+        .btn:hover {
+            background-color: #2563eb;
+            box-shadow: 0 22px 30px -12px #1e4fd9;
+            transform: translateY(-4px) scale(1.02);
+            border-color: rgba(255,255,255,0.25);
+        }
+
+        /* ----- section headers ----- */
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 2.5rem;
+            letter-spacing: -0.02em;
+            position: relative;
+            display: inline-block;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -12px;
+            width: 60%;
+            height: 4px;
+            background: linear-gradient(90deg, #2f7cf0, #7aa9ff, #b0cbff);
+            border-radius: 4px;
+        }
+
+        /* about card */
+        .about-card {
+            background: #141e33;
+            border-radius: 36px;
+            padding: 2.5rem 2.8rem;
+            box-shadow: 0 30px 40px -25px #000000cc, 0 0 0 1px rgba(70, 150, 255, 0.15);
+            backdrop-filter: blur(4px);
+            margin: 3rem 0 4rem 0;
+            transition: all 0.3s;
+        }
+        .about-card:hover {
+            box-shadow: 0 40px 55px -28px #0055ff33, 0 0 0 1px #3f8eff;
+        }
+
+        .about-text {
+            font-size: 1.3rem;
+            color: #d3e2ff;
+            line-height: 1.6;
+            max-width: 900px;
+        }
+        .about-text strong {
+            color: white;
+            font-weight: 600;
+            background: linear-gradient(90deg, #88b3ff, #a6c9ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .services-highlight {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem 2rem;
+            margin-top: 1.8rem;
+        }
+        .pill {
+            background: #1a2942;
+            padding: 0.5rem 1.8rem;
+            border-radius: 60px;
+            color: #c7dbff;
+            font-weight: 450;
+            box-shadow: inset 0 1px 3px #ffffff0d, 0 5px 10px #00000035;
+            border: 1px solid #2d4370;
+            transition: 0.15s;
+        }
+        .pill:hover {
+            background: #1f3260;
+            color: white;
+            border-color: #4f86f7;
+        }
+
+        /* projects grid */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0 4rem 0;
+        }
+
+        .project-card {
+            background: #121b2f;
+            border-radius: 32px;
+            padding: 2rem 1.8rem 2rem 1.8rem;
+            box-shadow: 0 22px 30px -18px #010314, 0 0 0 1px #253450;
+            transition: transform 0.25s ease, box-shadow 0.3s, border-color 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .project-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 40px 45px -25px #2060dd, 0 0 0 1px #4282f0;
+            border-color: #3973e0;
+        }
+
+        .project-icon {
+            font-size: 2.4rem;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 8px 8px #102a50);
+        }
+
+        .project-card h3 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 0.4rem;
+        }
+
+        .project-desc {
+            color: #9fb3da;
+            font-size: 1rem;
+            border-top: 1px dashed #2f4570;
+            margin-top: 0.6rem;
+            padding-top: 1rem;
+        }
+
+        .project-tag {
+            display: inline-block;
+            background: #1f3455;
+            border-radius: 30px;
+            padding: 0.25rem 1rem;
+            font-size: 0.8rem;
+            color: #bdd1ff;
+            margin-top: 0.8rem;
+            border: 1px solid #3e5c96;
+        }
+
+        /* contact section */
+        .contact-section {
+            background: #0d1423;
+            border-radius: 48px 48px 0 0;
+            padding: 3.5rem 2.5rem;
+            box-shadow: 0 -8px 30px -10px #020617, inset 0 1px 1px #3a5277;
+            margin-top: 2rem;
+            border: 1px solid #233153;
+            border-bottom: none;
+        }
+
+        .contact-flex {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+        }
+
+        .email-large {
+            font-size: clamp(1.5rem, 5vw, 2.3rem);
+            font-weight: 500;
+            background: #0f1a2e;
+            padding: 0.7rem 2rem;
+            border-radius: 120px;
+            border: 1px solid #3b5c9e;
+            box-shadow: 0 10px 18px -8px #00060f, inset 0 2px 3px #9bbaff1a;
+            color: #d9ecff;
+            word-break: break-all;
+        }
+
+        .email-large:hover {
+            border-color: #5c9aff;
+            background: #13223f;
+            color: white;
+        }
+
+        .cta-big {
+            background: #0047ab;
+            color: white;
+            font-size: 1.8rem;
+            padding: 1rem 2.5rem;
+            border-radius: 120px;
+            font-weight: 600;
+            text-decoration: none;
+            box-shadow: 0 28px 30px -18px #001f7f, 0 0 0 1px #88adff;
+            transition: all 0.3s;
+            display: inline-block;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            line-height: 1.2;
+        }
+
+        .cta-big:hover {
+            background: #0358d8;
+            box-shadow: 0 35px 40px -22px #3f7eff;
+            transform: scale(1.02) translateY(-4px);
+            border-color: #aac5ff;
+        }
+
+        /* footer/ small */
+        .footnote {
+            text-align: center;
+            margin-top: 2.5rem;
+            padding-bottom: 2rem;
+            color: #677b9f;
+            font-size: 0.95rem;
+        }
+
+        /* responsiveness */
+        @media (max-width: 650px) {
+            .hero h1 {
+                font-size: 4rem;
+            }
+            .hero-tagline {
+                font-size: 1.4rem;
+                padding-left: 1rem;
+            }
+            .btn {
+                padding: 0.8rem 2rem;
+                font-size: 1.1rem;
+            }
+            .about-card {
+                padding: 1.8rem;
+            }
+            .about-text {
+                font-size: 1.15rem;
+            }
+            .services-highlight {
+                gap: 0.8rem;
+            }
+            .contact-flex {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .cta-big {
+                font-size: 1.4rem;
+                padding: 0.9rem 1.8rem;
+                width: 100%;
+                text-align: center;
+            }
+            .email-large {
+                font-size: 1.3rem;
+                word-break: break-all;
+                width: 100%;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .hero h1 {
+                font-size: 3.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .project-card h3 {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* smooth pseudo-classes */
+        a, .pill, .project-card, .btn, .cta-big, .email-large {
+            transition: all 0.2s ease-in-out;
+        }
+
+        /* selection color */
+        ::selection {
+            background-color: #2563eb;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container hero-content">
+            <h1>Arivon</h1>
+            <div class="hero-tagline">Web Developer & AI Automation Specialist</div>
+            <a href="#contact" class="btn">Hire Me</a>
+        </div>
+    </section>
+
+    <div class="container">
+        <!-- About Section -->
+        <section id="about">
+            <h2 class="section-title">About</h2>
+            <div class="about-card">
+                <div class="about-text">
+                    I help small businesses and entrepreneurs stand out with <strong>modern websites</strong>, high-converting <strong>landing pages</strong>, and custom <strong>AI automation</strong> that saves time. 
+                    Every solution is built for clarity, speed, and impact.
+                </div>
+                <div class="services-highlight">
+                    <span class="pill">Website development</span>
+                    <span class="pill">Landing pages</span>
+                    <span class="pill">AI automation for small businesses</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Section (3 demo projects) -->
+        <section id="projects">
+            <h2 class="section-title">Recent projects</h2>
+            <div class="projects-grid">
+                <!-- Project 1 -->
+                <div class="project-card">
+                    <div class="project-icon">🍽️</div>
+                    <h3>Restaurant Website</h3>
+                    <div class="project-desc">Elegant menu showcase, online reservations, and chef story — fully responsive.</div>
+                    <span class="project-tag">React / Astro</span>
+                </div>
+                <!-- Project 2 -->
+                <div class="project-card">
+                    <div class="project-icon">💪</div>
+                    <h3>Gym Landing Page</h3>
+                    <div class="project-desc">High-energy design with class schedule, trainer profiles, and sign‑up forms.</div>
+                    <span class="project-tag">Vue + Tailwind</span>
+                </div>
+                <!-- Project 3 -->
+                <div class="project-card">
+                    <div class="project-icon">🤖</div>
+                    <h3>AI Chatbot for Clinic</h3>
+                    <div class="project-desc">Automated patient intake, FAQ bot, and appointment booking integration.</div>
+                    <span class="project-tag">OpenAI + Node.js</span>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Contact Section (outside container for full-width background, but content stays inside container style) -->
+    <section id="contact" class="contact-section">
+        <div class="container" style="padding:0;">  <!-- inner container removes extra padding -->
+            <h2 class="section-title" style="margin-top:0;">Let’s work together</h2>
+            <div class="contact-flex">
+                <div class="email-large">📧 maansindhav12@gmail.com</div>
+                <a href="mailto:maansindhav12@gmail.com" class="cta-big">Available for Freelance Projects →</a>
+            </div>
+            <div class="footnote">
+                * no agencies — direct collaboration with Arivon
+            </div>
+        </div>
+    </section>
+
+    <!-- simple footer for spacing (no fake reviews) -->
+    <div style="background:#0b0f1a; color:#31456b; text-align:center; padding:1.2rem; border-top:1px solid #19273e;">
+        <span>© Arivon · web & AI automation</span>
+    </div>
+</body>
+</html>
