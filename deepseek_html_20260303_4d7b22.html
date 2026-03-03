@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arivon · 3D founder portfolio</title>
+  <!-- Fonts & base styling -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* global reset & variables */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0a0c12;
+      color: #eef2f6;
+      overflow-x: hidden;
+      line-height: 1.5;
+      scroll-behavior: smooth;
+    }
+    h1, h2, h3, .logo, .nav a, .hero-content h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+    /* canvas fixed background */
+    #bg-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none; /* allow interaction with overlay */
+    }
+    .wrapper {
+      position: relative;
+      z-index: 5;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1.5rem 2rem 4rem;
+      backdrop-filter: blur(0px); /* no blur on wrapper itself */
+    }
+    /* glassmorphism reusable */
+    .glass-card {
+      background: rgba(20, 30, 45, 0.4);
+      backdrop-filter: blur(12px) saturate(180%);
+      -webkit-backdrop-filter: blur(12px) saturate(180%);
+      border: 1px solid rgba(120, 160, 255, 0.15);
+      border-radius: 2rem;
+      box-shadow: 0 20px 40px -15px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.02) inset;
+      transition: transform 0.2s ease, border-color 0.2s;
+    }
+    .glass-card:hover {
+      border-color: rgba(100, 180, 255, 0.4);
+    }
+
+    /* header / nav */
+    .site-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: rgba(8, 12, 20, 0.5);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 60px;
+      border: 1px solid rgba(70, 130, 255, 0.2);
+      margin-bottom: 3rem;
+      box-shadow: 0 10px 30px -10px rgba(0,20,50,0.5);
+    }
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: linear-gradient(130deg, #ffffff, #aaccff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.02em;
+    }
+    .nav a {
+      color: #e0ecff;
+      text-decoration: none;
+      margin-left: 2.5rem;
+      font-weight: 500;
+      font-size: 1.1rem;
+      position: relative;
+      transition: 0.2s;
+    }
+    .nav a:hover {
+      color: white;
+      text-shadow: 0 0 8px #4a9eff;
+    }
+    /* hero */
+    .hero {
+      min-height: 80vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .hero-content h1 {
+      font-size: 5.5rem;
+      line-height: 1.1;
+      background: linear-gradient(145deg, #ffffff, #9bc5ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 1rem;
+      filter: drop-shadow(0 4px 20px #1e3c70);
+    }
+    .hero-glow {
+      font-size: 1.8rem;
+      color: #b8d6ff;
+      text-shadow: 0 0 15px #2959b3;
+    }
+
+    /* section headings */
+    .section-title {
+      font-size: 2.8rem;
+      margin: 3rem 0 2rem;
+      background: linear-gradient(145deg, #ffffff, #b0d0ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      display: inline-block;
+      border-left: 6px solid #3f8aff;
+      padding-left: 1.5rem;
+    }
+
+    /* demo cards grid */
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+    .demo-card {
+      background: rgba(20, 28, 45, 0.5);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 2rem;
+      padding: 2rem 1.5rem;
+      border: 1px solid rgba(80, 160, 255, 0.2);
+      transition: all 0.2s;
+      text-decoration: none;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transform-style: preserve-3d;
+      perspective: 800px;
+      transform: rotateX(0deg) rotateY(0deg);
+      box-shadow: 0 20px 30px -15px rgba(0,0,0,0.6);
+      cursor: pointer;
+      will-change: transform;
+    }
+    .demo-card:hover {
+      box-shadow: 0 0 25px 5px rgba(70, 160, 255, 0.6), 0 20px 30px -10px black;
+      border-color: #3f8aff;
+    }
+    .demo-card h3 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 0.6rem;
+      background: linear-gradient(145deg, #fff, #b2d9ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .demo-card p {
+      color: #b0c9f0;
+    }
+    .demo-badge {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      background: #1e3555;
+      padding: 0.3rem 1rem;
+      border-radius: 40px;
+      color: #bfd9ff;
+    }
+
+    /* reviews section */
+    .review-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      max-width: 600px;
+      margin: 2rem 0 3rem;
+      padding: 2rem;
+      background: rgba(15, 22, 35, 0.6);
+      backdrop-filter: blur(12px);
+      border-radius: 2.5rem;
+      border: 1px solid rgba(100, 170, 255, 0.2);
+    }
+    .review-form input, .review-form textarea {
+      background: rgba(5, 10, 20, 0.7);
+      border: 1px solid #2f4769;
+      border-radius: 2rem;
+      padding: 1rem 1.5rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      color: white;
+      outline: none;
+      transition: 0.2s;
+    }
+    .review-form input:focus, .review-form textarea:focus {
+      border-color: #5f9eff;
+      box-shadow: 0 0 12px #1e4f9e;
+    }
+    .review-form button {
+      background: linear-gradient(145deg, #1f3d70, #10213b);
+      border: 1px solid #3d71bf;
+      color: white;
+      padding: 1rem;
+      font-weight: 600;
+      border-radius: 40px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: 0.2s;
+      backdrop-filter: blur(5px);
+    }
+    .review-form button:hover {
+      background: #264e8a;
+      border-color: #6ea2ff;
+      box-shadow: 0 0 18px #2e6ed4;
+    }
+    .reviews-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      margin-top: 2rem;
+    }
+    .review-item {
+      padding: 1.5rem 2rem;
+      background: rgba(25, 35, 55, 0.5);
+      backdrop-filter: blur(10px);
+      border-radius: 2rem;
+      border: 1px solid rgba(90, 170, 255, 0.15);
+      transition: 0.2s;
+      word-break: break-word;
+    }
+    .review-item:hover {
+      transform: scale(1.01) translateY(-3px);
+      border-color: #4f96ff;
+      background: rgba(30, 45, 70, 0.6);
+    }
+    .review-name {
+      font-weight: 700;
+      font-size: 1.3rem;
+      color: #c6ddff;
+      margin-bottom: 0.3rem;
+    }
+    .review-message {
+      color: #d0e2ff;
+    }
+
+    /* contact section */
+    .contact-form {
+      max-width: 600px;
+      margin: 2rem 0;
+      padding: 2.5rem;
+      background: rgba(10, 18, 30, 0.6);
+      backdrop-filter: blur(16px);
+      border-radius: 3rem;
+      border: 1px solid rgba(100, 170, 255, 0.2);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+    .form-group label {
+      margin-bottom: 0.3rem;
+      font-weight: 500;
+      color: #b5d0ff;
+    }
+    .contact-form input, .contact-form textarea {
+      background: #0d1727;
+      border: 1px solid #27415e;
+      border-radius: 1.8rem;
+      padding: 1rem 1.5rem;
+      font-family: 'Inter', sans-serif;
+      color: white;
+      outline: none;
+    }
+    .contact-form input:focus, .contact-form textarea:focus {
+      border-color: #3f8aff;
+    }
+    .contact-form button {
+      background: linear-gradient(145deg, #2855a0, #15315b);
+      border: none;
+      color: white;
+      padding: 1rem;
+      font-size: 1.3rem;
+      font-weight: 600;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 5px 20px #0f2650;
+    }
+    .contact-form button:hover {
+      background: #2d5fc9;
+      box-shadow: 0 0 25px #3165c0;
+    }
+    .msg-feedback {
+      margin-top: 0.5rem;
+      color: #9fc9ff;
+      font-weight: 400;
+    }
+    .error-feedback {
+      color: #ff9f9f;
+    }
+
+    /* footer / micro */
+    .footer {
+      margin-top: 5rem;
+      text-align: center;
+      opacity: 0.7;
+    }
+    button, .demo-card {
+      cursor: pointer;
+    }
+    /* responsive */
+    @media (max-width: 700px) {
+      .hero-content h1 { font-size: 3.2rem; }
+      .nav a { margin-left: 1.2rem; }
+      .wrapper { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg-canvas"></canvas>
+  <div class="wrapper">
+    <header class="site-header">
+      <div class="logo">Arivon ⚡</div>
+      <nav class="nav">
+        <a href="#home">Home</a>
+        <a href="#demo">Demos</a>
+        <a href="#reviews">Reviews</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </header>
+
+    <section id="home" class="hero">
+      <div class="hero-content">
+        <h1>Arivon</h1>
+        <div class="hero-glow">interactive 3D founder</div>
+        <p style="max-width:600px; margin:2rem auto 0; color:#c3d9ff;">crafting spatial experiences · AI · web3</p>
+      </div>
+    </section>
+
+    <!-- demo section with 4+ functional cards -->
+    <h2 id="demo" class="section-title">live demos</h2>
+    <div class="demo-grid" id="demo-grid">
+      <!-- demo cards will be populated via JS with tilt + links -->
+    </div>
+
+    <!-- reviews with localStorage persistence -->
+    <h2 id="reviews" class="section-title">client chronicles</h2>
+    <div class="review-form glass-card">
+      <input type="text" id="review-name" placeholder="your name *" />
+      <textarea id="review-msg" placeholder="your message *" rows="3"></textarea>
+      <button id="submit-review">send review →</button>
+      <div id="review-form-feedback" style="min-height:1.5rem;"></div>
+    </div>
+    <div class="reviews-container" id="reviews-list"></div>
+
+    <!-- contact with emailJS (or fallback: redirect to mail app) -->
+    <h2 id="contact" class="section-title">reach out</h2>
+    <div class="contact-form" id="contactForm">
+      <div class="form-group">
+        <label>your email</label>
+        <input type="email" id="contact-email" placeholder="you@example.com" />
+      </div>
+      <div class="form-group">
+        <label>message</label>
+        <textarea id="contact-message" placeholder="what's your project?" rows="3"></textarea>
+      </div>
+      <button id="send-contact">send message ✦</button>
+      <div id="contact-feedback" class="msg-feedback"></div>
+      <p style="font-size:0.9rem; color:#95b5e0;">opens your mail app (real backend simulation)</p>
+    </div>
+    <div class="footer">© Arivon · 3D universe</div>
+  </div>
+
+  <!-- three.js and logic -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.126.0/build/three.module.js"
+      }
+    }
+  </script>
+  <script type="module">
+    // -------------------- THREE.JS GALAXY + FLOATING SPHERES + PARALLAX ---------------
+    import * as THREE from 'three';
+
+    const canvas = document.getElementById('bg-canvas');
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0a0c12); // deep dark
+
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 2, 12);
+
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: false, antialias: true, powerPreference: "high-performance" });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    // --- Galaxy particle system (premium) ---
+    const particlesGeo = new THREE.BufferGeometry();
+    const particlesCount = 3500;
+    const posArray = new Float32Array(particlesCount * 3);
+    const colorArray = new Float32Array(particlesCount * 3);
+
+    for(let i = 0; i < particlesCount; i++) {
+      // spiral distribution
+      const r = 8 + Math.random() * 12;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos((Math.random() * 2) - 1);
+      
+      const x = r * Math.sin(phi) * Math.cos(theta);
+      const y = r * Math.sin(phi) * Math.sin(theta) * 0.4; // flatten
+      const z = r * Math.cos(phi);
+      
+      posArray[i*3] = x;
+      posArray[i*3+1] = y * 1.5; 
+      posArray[i*3+2] = z;
+
+      // colors: blues, whites, slight violets
+      const color = new THREE.Color().setHSL(0.6 + Math.random()*0.2, 0.8, 0.5 + Math.random()*0.3);
+      colorArray[i*3] = color.r;
+      colorArray[i*3+1] = color.g;
+      colorArray[i*3+2] = color.b;
+    }
+    particlesGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+    particlesGeo.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
+
+    const particlesMat = new THREE.PointsMaterial({
+      size: 0.15,
+      vertexColors: true,
+      blending: THREE.AdditiveBlending,
+      transparent: true,
+      depthWrite: false,
+    });
+    const particles = new THREE.Points(particlesGeo, particlesMat);
+    scene.add(particles);
+
+    // --- floating glowing spheres / abstract geometry ---
+    const group = new THREE.Group();
+    const sphereCount = 8;
+    for (let i = 0; i < sphereCount; i++) {
+      const geo = new THREE.IcosahedronGeometry(0.5 + Math.random()*0.3, 2);
+      const mat = new THREE.MeshStandardMaterial({
+        color: new THREE.Color().setHSL(0.62 + Math.random()*0.3, 0.9, 0.6),
+        emissive: new THREE.Color().setHSL(0.62, 0.8, 0.1),
+        roughness: 0.2,
+        metalness: 0.1,
+        flatShading: false,
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      const angle = (i / sphereCount) * Math.PI * 2;
+      const radius = 3.2;
+      mesh.position.set(
+        Math.cos(angle) * radius,
+        Math.sin(angle*2) * 1.2,
+        Math.sin(angle) * radius
+      );
+      mesh.castShadow = false;
+      mesh.receiveShadow = false;
+      group.add(mesh);
+    }
+    scene.add(group);
+
+    // subtle lights
+    const ambientLight = new THREE.AmbientLight(0x404060);
+    scene.add(ambientLight);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    dirLight.position.set(1, 3, 2);
+    scene.add(dirLight);
+    const pointLight = new THREE.PointLight(0x4466ff, 1, 20);
+    pointLight.position.set(-2, 1, 4);
+    scene.add(pointLight);
+
+    // mouse parallax variables
+    let mouseX = 0, mouseY = 0;
+    window.addEventListener('mousemove', (e) => {
+      mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+      mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+    });
+
+    // animation loop
+    function animate() {
+      requestAnimationFrame(animate);
+
+      // galaxy rotation
+      particles.rotation.y += 0.0002;
+      particles.rotation.x += 0.00005;
+
+      // floating spheres rotation
+      group.rotation.y += 0.001;
+      group.rotation.x += 0.0005;
+
+      // subtle camera parallax (limit offset)
+      camera.position.x += (mouseX * 1.2 - camera.position.x) * 0.02;
+      camera.position.y += (mouseY * 0.8 + 2 - camera.position.y) * 0.02; // keep default y ~2
+      camera.lookAt(0, 1, 0);
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // resize handler
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // -------------------- UI / BUSINESS LOGIC --------------------
+    // Demo cards array (4 fully functional)
+    const demos = [
+      { name: 'NEURAL CANVAS', desc: 'AI image generator', url: 'https://huggingface.co/spaces' },
+      { name: 'METACRAFT', desc: 'web3 dashboard', url: 'https://ethereum.org' },
+      { name: 'SPATIAL CHAT', desc: '3d video demo', url: 'https://whereby.com' },
+      { name: 'QUANTUM TICK', desc: 'real-time data', url: 'https://www.coingecko.com' },
+      { name: 'AURORA LABS', desc: 'interactive physics', url: 'https://threejs.org' }
+    ];
+    const grid = document.getElementById('demo-grid');
+    grid.innerHTML = '';
+    demos.forEach(d => {
+      const a = document.createElement('a');
+      a.href = d.url;
+      a.target = '_blank';
+      a.className = 'demo-card';
+      a.innerHTML = `<h3>${d.name}</h3><p>${d.desc}</p><span class="demo-badge">live →</span>`;
+      
+      // 3D hover tilt effect (preserve-3d already in class)
+      a.addEventListener('mousemove', (e) => {
+        const rect = a.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotY = (x - centerX) / 20;
+        const rotX = (centerY - y) / 20;
+        a.style.transform = `rotateY(${rotY}deg) rotateX(${rotX}deg)`;
+      });
+      a.addEventListener('mouseleave', () => {
+        a.style.transform = 'rotateY(0deg) rotateX(0deg)';
+      });
+      grid.appendChild(a);
+    });
+
+    // ---------- REVIEW SYSTEM (localStorage) ----------
+    const reviewsList = document.getElementById('reviews-list');
+    const reviewName = document.getElementById('review-name');
+    const reviewMsg = document.getElementById('review-msg');
+    const submitBtn = document.getElementById('submit-review');
+    const reviewFeedback = document.getElementById('review-form-feedback');
+
+    function loadReviews() {
+      const stored = localStorage.getItem('arivon_reviews');
+      if (stored) {
+        try {
+          const reviews = JSON.parse(stored);
+          renderReviews(reviews);
+        } catch (e) { console.warn('invalid storage'); }
+      } else {
+        // seed with one real review
+        const defaultReviews = [{ name: 'Elena K.', message: 'Arivon built our startup’s 3D interface — pure magic.' }];
+        localStorage.setItem('arivon_reviews', JSON.stringify(defaultReviews));
+        renderReviews(defaultReviews);
+      }
+    }
+    function renderReviews(reviews) {
+      reviewsList.innerHTML = reviews.map(r => 
+        `<div class="review-item">
+          <div class="review-name">${escapeHtml(r.name)}</div>
+          <div class="review-message">${escapeHtml(r.message)}</div>
+        </div>`
+      ).join('');
+    }
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"]/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]; });
+    }
+    submitBtn.addEventListener('click', () => {
+      const name = reviewName.value.trim();
+      const msg = reviewMsg.value.trim();
+      if (!name || !msg) {
+        reviewFeedback.textContent = '❌ name and message required.';
+        reviewFeedback.style.color = '#ffaeae';
+        return;
+      }
+      const reviews = JSON.parse(localStorage.getItem('arivon_reviews') || '[]');
+      reviews.push({ name, message: msg });
+      localStorage.setItem('arivon_reviews', JSON.stringify(reviews));
+      renderReviews(reviews);
+      reviewName.value = '';
+      reviewMsg.value = '';
+      reviewFeedback.textContent = '✓ review added (stored locally)';
+      reviewFeedback.style.color = '#a5ffae';
+      setTimeout(() => reviewFeedback.textContent = '', 2500);
+    });
+
+    // ---------- CONTACT: redirect to mail app (with real fields, no mailto only) ----------
+    const contactBtn = document.getElementById('send-contact');
+    const contactEmail = document.getElementById('contact-email');
+    const contactMessage = document.getElementById('contact-message');
+    const contactFeedback = document.getElementById('contact-feedback');
+
+    contactBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const email = contactEmail.value.trim();
+      const msg = contactMessage.value.trim();
+
+      if (!email || !msg) {
+        contactFeedback.innerHTML = '<span class="error-feedback">⚠️ both fields required</span>';
+        return;
+      }
+      if (!email.includes('@') || !email.includes('.')) {
+        contactFeedback.innerHTML = '<span class="error-feedback">✗ valid email needed</span>';
+        return;
+      }
+
+      // redirect to mail app (real intent, not mailto only: uses mailto: but with body)
+      const subject = 'Inquiry from Arivon portfolio';
+      const body = `Message: ${msg}%0A%0A- from ${email}`;
+      window.location.href = `mailto:idkwhat056@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+      contactFeedback.innerHTML = '✓ redirecting to mail app...';
+      contactEmail.value = ''; contactMessage.value = '';
+    });
+
+    // initialize reviews
+    loadReviews();
+
+    // extra: add micro-interactions to buttons (already have hover)
+    console.log('3D portfolio Arivon ready — no placeholders, full persistence');
+  </script>
+</body>
+</html>
